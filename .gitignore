@@ -1,0 +1,5 @@
+node_modules/
+auth.json
+screenshots/
+.env
+*.log

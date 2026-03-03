@@ -10,10 +10,18 @@ const env = {
   loginEmail: process.env.LOGIN_EMAIL,
   otpCode: process.env.OTP_CODE,
 
+  signupUrl: process.env.SIGNUP_URL || "https://ai.asksam.com.au/sign-up",
+  signupEmail: process.env.SIGNUP_EMAIL,
+  signupFirstName: process.env.SIGNUP_FIRST_NAME || "Test",
+  signupLastName: process.env.SIGNUP_LAST_NAME || "Automation",
+
   selectorEmail: process.env.SELECTOR_EMAIL || 'input[name="identifier"]',
   selectorContinue:
     process.env.SELECTOR_CONTINUE || 'button:has-text("Continue")',
   selectorOtp: process.env.SELECTOR_OTP || '[autocomplete="one-time-code"]',
+  selectorFirstName: 'input[name="firstName"]',
+  selectorLastName: 'input[name="lastName"]',
+  selectorEmailAddress: 'input[name="emailAddress"]',
   authSuccessUrl:
     process.env.AUTH_SUCCESS_URL || "https://ai.asksam.com.au/chat",
 
@@ -27,6 +35,10 @@ const env = {
     "../..",
     process.env.SCREENSHOT_PATH || "screenshots/task-result.png"
   ),
+
+  automateEmailPrefix: process.env.AUTOMATE_EMAIL_PREFIX || "test.auto.",
+  automateEmailTag: process.env.AUTOMATE_EMAIL_TAG || "clerk_test",
+  automateEmailDomain: process.env.AUTOMATE_EMAIL_DOMAIN || "tmail.com",
 
   navigationTimeout: parseInt(process.env.NAVIGATION_TIMEOUT, 10) || 30_000,
   stepTransitionTimeout:

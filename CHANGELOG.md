@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.4.0] - 2026-03-03
+
+### Minor change
+- Added `npm run automate` flow that attempts Clerk login with `LOGIN_EMAIL` and, if Clerk reports "user not found", auto-generates a unique signup email and creates the account via the sign-up flow.
+- Auto-generated signup emails use the configurable pattern `{prefix}{timestamp}+{tag}@{domain}` with defaults `test.auto.{ts}+clerk_test@tmail.com`.
+- Added optional environment variables `AUTOMATE_EMAIL_PREFIX`, `AUTOMATE_EMAIL_TAG`, and `AUTOMATE_EMAIL_DOMAIN` for controlling generated email format.
+- Updated orchestrator (`src/index.js`) to support `node src/index.js automate` via the main entry point.
+
+## [1.3.0] - 2026-03-03
+
+### Minor change
+- Added Clerk sign-up automation script (`src/scripts/signup.js`) that handles the full registration flow: first name, last name, email entry, then OTP verification.
+- Added signup-specific environment variables (`SIGNUP_URL`, `SIGNUP_EMAIL`, `SIGNUP_FIRST_NAME`, `SIGNUP_LAST_NAME`) and corresponding Clerk form selectors.
+- Added `npm run signup` command to run the sign-up flow standalone.
+- Updated orchestrator (`src/index.js`) to support `node src/index.js signup` for running sign-up via the main entry point.
+
 ## [1.2.0] - 2026-03-03
 
 ### Major change

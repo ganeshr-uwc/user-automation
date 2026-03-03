@@ -3,6 +3,7 @@ const env = require("./config/env");
 const { login } = require("./scripts/login");
 const { signup } = require("./scripts/signup");
 const { automate } = require("./scripts/automate");
+const { onboard } = require("./scripts/onboard");
 const { runTask } = require("./scripts/runTask");
 
 const command = process.argv[2];
@@ -17,6 +18,12 @@ async function main() {
   if (command === "automate") {
     console.log("Running automate flow (login → signup fallback)…");
     await automate();
+    return;
+  }
+
+  if (command === "onboard") {
+    console.log("Running onboarding flow…");
+    await onboard();
     return;
   }
 

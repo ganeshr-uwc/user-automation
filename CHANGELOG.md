@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.5.1] - 2026-03-03
+
+### Minor change
+- Added Step 7 to onboarding script: selects the "Google" radio option (how did you hear about us) before clicking "Complete Profile".
+
+## [1.5.0] - 2026-03-03
+
+### Minor change
+- Added onboarding automation script (`src/scripts/onboard.js`) that handles the full AskSam post-auth onboarding wizard: welcome popup, terms & conditions agreement, name entry (first/middle/last), gender selection, date of birth, and referral code verification.
+- Added `npm run onboard` command and orchestrator support via `node src/index.js onboard`.
+- Added onboarding-specific environment variables: `ONBOARD_FIRST_NAME`, `ONBOARD_MIDDLE_NAME`, `ONBOARD_LAST_NAME`, `ONBOARD_GENDER`, `ONBOARD_DOB`, `ONBOARD_REFERRAL_CODE`.
+
 ## [1.4.0] - 2026-03-03
 
 ### Minor change

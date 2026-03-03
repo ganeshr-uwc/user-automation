@@ -40,6 +40,13 @@ const env = {
   automateEmailTag: process.env.AUTOMATE_EMAIL_TAG || "clerk_test",
   automateEmailDomain: process.env.AUTOMATE_EMAIL_DOMAIN || "tmail.com",
 
+  onboardFirstName: process.env.ONBOARD_FIRST_NAME || "Test",
+  onboardMiddleName: process.env.ONBOARD_MIDDLE_NAME || "",
+  onboardLastName: process.env.ONBOARD_LAST_NAME || "User",
+  onboardGender: process.env.ONBOARD_GENDER || "Male",
+  onboardDob: process.env.ONBOARD_DOB || "2000-01-15",
+  onboardReferralCode: process.env.ONBOARD_REFERRAL_CODE || "DEMO1024",
+
   navigationTimeout: parseInt(process.env.NAVIGATION_TIMEOUT, 10) || 30_000,
   stepTransitionTimeout:
     parseInt(process.env.STEP_TRANSITION_TIMEOUT, 10) || 10_000,

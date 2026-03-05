@@ -50,6 +50,12 @@ const env = {
   navigationTimeout: parseInt(process.env.NAVIGATION_TIMEOUT, 10) || 30_000,
   stepTransitionTimeout:
     parseInt(process.env.STEP_TRANSITION_TIMEOUT, 10) || 10_000,
+  onboardDetectTimeout:
+    parseInt(process.env.ONBOARD_DETECT_TIMEOUT, 10) || 8_000,
+
+  chatUrl: process.env.CHAT_URL || "https://ai.asksam.com.au/chat",
+  chatReplyTimeout:
+    parseInt(process.env.CHAT_REPLY_TIMEOUT, 10) || 60_000,
 };
 
 const requiredVars = ["targetUrl", "protectedUrl", "loginEmail", "otpCode"];

@@ -1,6 +1,7 @@
 const env = require("../config/env");
 const { getBrowser, closeBrowser } = require("../utils/browser");
 const { onboard } = require("./onboard");
+const { chat } = require("./chat");
 
 function generateSignupEmail() {
   const timestamp = Date.now();
@@ -161,6 +162,7 @@ async function performSignup(page, context) {
 if (require.main === module) {
   automate()
     .then(() => onboard())
+    .then(() => chat())
     .catch((error) => {
       console.error(error.message);
       process.exit(1);

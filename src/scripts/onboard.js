@@ -31,13 +31,18 @@ async function onboard() {
     console.log(`Opening app: ${env.protectedUrl}`);
     await page.goto(env.protectedUrl, { waitUntil: "domcontentloaded" });
 
-    // --- Step 1: Welcome popup ---
-    console.log("Step 1: Waiting for welcome popup…");
+    // --- Step 1: Welcome popup (conditional) ---
+    console.log("Checking for onboarding welcome popup…");
     const welcomeHeading = page.getByText("Welcome to the asksam app!");
-    await welcomeHeading.waitFor({
-      state: "visible",
-      timeout: env.navigationTimeout,
-    });
+    try {
+      await welcomeHeading.waitFor({
+        state: "visible",
+        timeout: env.onboardDetectTimeout,
+      });
+    } catch {
+      console.log("Onboarding already completed — skipping.");
+      return;
+    }
     console.log("Welcome popup detected.");
 
     const welcomeContinueBtn = page

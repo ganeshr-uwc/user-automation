@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.8.0] - 2026-03-05
+
+### Minor change
+- Onboarding is now conditional: the welcome popup is detected with a short timeout (~8s) and skipped gracefully if the user has already completed onboarding, preventing failures for returning users.
+- Added chat reply verification (`src/scripts/chat.js`): sends 5 mental-health-related test messages on `/chat` and verifies that Sam replies to each one, logging pass/fail per message and a summary.
+- `npm run automate` now chains: sign-in/sign-up -> conditional onboarding -> chat reply verification.
+- Added `npm run chat` command to run the chat test standalone.
+- Added `CHAT_REPLY_TIMEOUT` and `ONBOARD_DETECT_TIMEOUT` environment variables.
+
 ## [1.7.0] - 2026-03-05
 
 ### Minor change

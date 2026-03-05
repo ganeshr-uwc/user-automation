@@ -9,8 +9,7 @@
     "signup": "node src/scripts/signup.js",
     "task": "node src/scripts/runTask.js",
     "automate": "node src/scripts/automate.js",
-    "onboard": "node src/scripts/onboard.js",
-    "validate-json": "node src/scripts/validate_json.js"
+    "onboard": "node src/scripts/onboard.js"
   },
   "keywords": ["automation", "playwright", "browser"],
   "author": "",

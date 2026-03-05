@@ -11,6 +11,7 @@ const { getBrowser, closeBrowser } = require("../utils/browser");
  *   Step 5 — Select date of birth → click Continue
  *   Step 6 — Enter referral code → click Verify
  *   Step 7 — Select "Google" radio option → click Complete Profile
+ *   Step 8 — Wait for post-onboarding popup → click Skip
  */
 async function onboard() {
   if (!fs.existsSync(env.authStatePath)) {
@@ -227,8 +228,24 @@ async function onboard() {
     await completeBtn.click();
     console.log("Clicked Complete Profile.");
 
-    // Wait for onboarding to finish and save updated session
-    await page.waitForTimeout(3000);
+    // --- Step 8: Skip post-onboarding popup ---
+    console.log("Step 8: Waiting for post-onboarding popup…");
+    const skipBtn = page.getByRole("button", { name: /Skip/i }).first();
+    await skipBtn.waitFor({
+      state: "visible",
+      timeout: env.navigationTimeout,
+    });
+    console.log("Post-onboarding popup detected.");
+    await skipBtn.click();
+    console.log("Clicked Skip on post-onboarding popup.");
+
+    await skipBtn.waitFor({
+      state: "hidden",
+      timeout: env.stepTransitionTimeout,
+    });
+    console.log("Post-onboarding popup closed.");
+    await page.waitForTimeout(2000);
+
     await context.storageState({ path: env.authStatePath });
 
     console.log("Onboarding completed successfully — session saved.");

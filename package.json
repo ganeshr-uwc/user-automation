@@ -1,6 +1,6 @@
 {
   "name": "user-automation",
-  "version": "1.6.0",
+  "version": "1.7.0",
   "description": "Production-ready browser automation using Node.js and Playwright",
   "main": "src/index.js",
   "scripts": {
@@ -9,7 +9,8 @@
     "signup": "node src/scripts/signup.js",
     "task": "node src/scripts/runTask.js",
     "automate": "node src/scripts/automate.js",
-    "onboard": "node src/scripts/onboard.js"
+    "onboard": "node src/scripts/onboard.js",
+    "validate-json": "node src/scripts/validate_json.js"
   },
   "keywords": ["automation", "playwright", "browser"],
   "author": "",

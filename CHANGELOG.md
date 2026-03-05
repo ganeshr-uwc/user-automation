@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.7.0] - 2026-03-05
+
+### Minor change
+- Added Step 8 to onboarding script: waits for the post-onboarding popup to appear and clicks the "Skip" button to dismiss it before saving the session.
+
 ## [1.6.0] - 2026-03-03
 
 ### Minor change

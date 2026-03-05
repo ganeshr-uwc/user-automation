@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.6.0] - 2026-03-03
+
+### Minor change
+- `npm run automate` now automatically runs the onboarding wizard after login or signup, combining both flows into a single command.
+
 ## [1.5.1] - 2026-03-03
 
 ### Minor change

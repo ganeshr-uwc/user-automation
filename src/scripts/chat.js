@@ -10,6 +10,9 @@ const TEST_MESSAGES = [
   "Can you suggest some mindfulness exercises?",
 ];
 
+const CHAT_CONTAINER_SEL = 'main div[class*="overflow-y-scroll"]';
+const BOT_MESSAGE_SEL = `${CHAT_CONTAINER_SEL} > div[class*="justify-start"]`;
+
 /**
  * Sends each message in TEST_MESSAGES on the /chat page and waits for a
  * bot reply after each one. Logs pass/fail per message and a final summary.
@@ -39,7 +42,9 @@ async function chat() {
       state: "visible",
       timeout: env.navigationTimeout,
     });
-    console.log("Chat input ready.\n");
+    console.log("Chat input ready.");
+
+    await waitForGreeting(page);
 
     for (let i = 0; i < TEST_MESSAGES.length; i++) {
       const msg = TEST_MESSAGES[i];
@@ -48,15 +53,23 @@ async function chat() {
       try {
         console.log(`${label} — Sending: "${msg}"`);
 
-        const beforeCount = await getMessageCount(page);
+        const beforeBotCount = await getBotMessageCount(page);
+        console.log(`  Bot messages before send: ${beforeBotCount}`);
 
         await chatInput.fill(msg);
         await page.keyboard.press("Enter");
 
-        await waitForBotReply(page, beforeCount);
+        await waitForBotReply(page, beforeBotCount);
 
+        const afterBotCount = await getBotMessageCount(page);
+        console.log(`  Bot messages after reply: ${afterBotCount}`);
         console.log(`${label} — Reply received: OK\n`);
         passed++;
+
+        await chatInput.waitFor({
+          state: "visible",
+          timeout: env.chatReplyTimeout,
+        });
       } catch (err) {
         console.error(`${label} — FAIL: ${err.message}\n`);
       }
@@ -80,63 +93,85 @@ async function chat() {
 }
 
 /**
- * Returns the current number of chat message elements on the page.
- * Targets the common wrapper pattern: user and bot messages live as
- * direct children inside the scrollable chat area.
+ * Waits for an optional bot greeting that appears on page load.
+ * If one shows up within a short window we let it settle;
+ * if not, the page is showing prompt cards and we proceed immediately.
  */
-async function getMessageCount(page) {
-  return page.evaluate(() => {
-    const msgs = document.querySelectorAll(
-      '[data-message-id], [data-role], .message, [class*="message"]'
+async function waitForGreeting(page) {
+  console.log("Checking for initial bot greeting…");
+  try {
+    await page.waitForFunction(
+      (sel) => document.querySelectorAll(sel).length >= 1,
+      BOT_MESSAGE_SEL,
+      { timeout: 8000, polling: 500 }
     );
-    if (msgs.length > 0) return msgs.length;
-    // Fallback: count distinct blocks inside the main scrollable area
-    const chat = document.querySelector(
-      '[role="log"], [class*="chat"], main, [class*="scroll"]'
-    );
-    return chat ? chat.children.length : 0;
-  });
+    console.log("Bot greeting detected — waiting for it to finish streaming…");
+    await waitForStreamingDone(page);
+    console.log("Greeting settled.\n");
+  } catch {
+    console.log("No bot greeting present — starting with prompt cards.\n");
+  }
+}
+
+/**
+ * Returns the current number of bot-reply elements on the page.
+ * Bot replies are direct children of the chat scroll container
+ * aligned with justify-start (as opposed to user messages which
+ * use justify-end).
+ */
+async function getBotMessageCount(page) {
+  return page.evaluate((sel) => {
+    return document.querySelectorAll(sel).length;
+  }, BOT_MESSAGE_SEL);
 }
 
 /**
  * Waits until a new bot reply appears after sending a message.
- *
- * Strategy: poll the page until the message count exceeds `countBefore`
- * by at least 2 (one for the user message, one for the bot reply), OR
- * until new substantive text content appears beyond the user's message.
- *
- * Falls back to watching for the chat input to become re-enabled /
- * empty (indicating the round-trip completed).
+ * Uses bot-message-only counting so we only need botCount > prevBotCount,
+ * eliminating the fragile "+2" total-count assumption.
+ * Also waits for any streaming/typing animation to finish.
  */
-async function waitForBotReply(page, countBefore) {
+async function waitForBotReply(page, botCountBefore) {
   const timeout = env.chatReplyTimeout;
 
   await page.waitForFunction(
-    ({ prevCount }) => {
-      // Strategy 1: message-count based
-      const msgs = document.querySelectorAll(
-        '[data-message-id], [data-role], .message, [class*="message"]'
-      );
-      if (msgs.length >= prevCount + 2) return true;
-
-      // Strategy 2: look for any streaming/typing indicator that appeared
-      // and then disappeared (response complete)
-      const streaming = document.querySelector(
-        '[class*="loading"], [class*="typing"], [class*="streaming"], [class*="animate-pulse"]'
-      );
-      if (streaming) return false; // still loading
-
-      // Strategy 3: broad child-count in scrollable area
-      const chat = document.querySelector(
-        '[role="log"], [class*="chat"], main, [class*="scroll"]'
-      );
-      if (chat && chat.children.length >= prevCount + 2) return true;
-
-      return false;
+    ({ prevBotCount, sel }) => {
+      const botMsgs = document.querySelectorAll(sel);
+      return botMsgs.length > prevBotCount;
     },
-    { prevCount: countBefore },
+    { prevBotCount: botCountBefore, sel: BOT_MESSAGE_SEL },
     { timeout, polling: 1000 }
   );
+
+  await waitForStreamingDone(page);
+}
+
+/**
+ * Polls until no streaming/typing indicator is visible and the
+ * last bot message text has stopped growing (content fully rendered).
+ */
+async function waitForStreamingDone(page) {
+  let prevText = "";
+  let stableCount = 0;
+  const requiredStableChecks = 3;
+
+  while (stableCount < requiredStableChecks) {
+    await page.waitForTimeout(1000);
+
+    const currentText = await page.evaluate((sel) => {
+      const botMsgs = document.querySelectorAll(sel);
+      if (botMsgs.length === 0) return "";
+      const last = botMsgs[botMsgs.length - 1];
+      return last.textContent || "";
+    }, BOT_MESSAGE_SEL);
+
+    if (currentText === prevText && currentText.length > 0) {
+      stableCount++;
+    } else {
+      stableCount = 0;
+    }
+    prevText = currentText;
+  }
 }
 
 if (require.main === module) {

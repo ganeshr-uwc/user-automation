@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.8.1] - 2026-03-06
+
+### Fix
+- Fixed chat reply detection: replaced generic DOM selectors (`[data-message-id]`, `[data-role]`, `.message`) that never matched AskSam's actual markup with correct selectors targeting the scrollable chat container (`overflow-y-scroll`) and bot message wrappers (`justify-start`).
+- Replaced fragile `prevCount + 2` total-message-count detection with bot-message-only counting (`botCount > prevBotCount`), eliminating false negatives caused by the +2 assumption.
+- Added `waitForStreamingDone()` that polls until the last bot message text stabilises, ensuring the full response is rendered before proceeding.
+- Added `waitForGreeting()` to handle the optional bot "Hi" greeting on page load without throwing off message counts.
+- Added input-readiness re-check between messages so the next send waits for the chat input to be visible again after streaming.
+
 ## [1.8.0] - 2026-03-05
 
 ### Minor change

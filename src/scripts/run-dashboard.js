@@ -284,8 +284,20 @@ async function runChat(page, screenshots) {
   const BOT_MESSAGE_SEL = `${CHAT_CONTAINER_SEL} > div[class*="justify-start"]`;
 
   await page.goto(env.chatUrl, { waitUntil: "load" });
-  // Wait for SPA to hydrate
   await page.waitForTimeout(5000);
+
+  // Handle "Retry Connection" if session creation fails
+  for (let attempt = 0; attempt < 3; attempt++) {
+    const retryBtn = page.getByRole("button", { name: /retry connection/i });
+    try {
+      await retryBtn.waitFor({ state: "visible", timeout: 5000 });
+      console.log(`  Retry Connection detected (attempt ${attempt + 1}) — clicking…`);
+      await retryBtn.click();
+      await page.waitForTimeout(5000);
+    } catch {
+      break; // no retry button — connection is fine
+    }
+  }
 
   const chatInput = page.getByPlaceholder("Ask Sam");
   await chatInput.waitFor({
@@ -361,6 +373,18 @@ async function waitForStreamingDone(page, botSel) {
 async function runBookAppointment(page, screenshots) {
   await page.goto(env.protectedUrl, { waitUntil: "load" });
   await page.waitForTimeout(3000);
+
+  // Handle "Retry Connection" if it appears on the chat/home page
+  const retryBtn = page.getByRole("button", { name: /retry connection/i });
+  try {
+    await retryBtn.waitFor({ state: "visible", timeout: 5000 });
+    console.log("  Retry Connection detected — clicking…");
+    await retryBtn.click();
+    await page.waitForTimeout(5000);
+  } catch {
+    // no retry needed
+  }
+
   screenshots.push(await screenshot(page, "book-01-home"));
 
   // Open sidebar

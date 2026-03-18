@@ -34,8 +34,8 @@ const CI = process.env.CI === "true";
 const tests = [
   {
     id: "login",
-    name: "Login (OTP)",
-    run: runLogin,
+    name: CI ? "Signup (New Account)" : "Login (OTP)",
+    run: CI ? runSignup : runLogin,
   },
   {
     id: "onboard",
@@ -46,13 +46,11 @@ const tests = [
     id: "chat",
     name: "Chat Reply Verification",
     run: runChat,
-    skipInCI: true,
   },
   {
     id: "book-appointment",
     name: "Book Appointment",
     run: runBookAppointment,
-    skipInCI: true,
   },
 ];
 
@@ -73,6 +71,63 @@ async function runLogin(page, screenshots) {
   await continueBtn.click();
 
   await page.waitForURL("**/sign-in/factor-one**", {
+    timeout: env.stepTransitionTimeout,
+  });
+
+  const otpInput = page.locator(env.selectorOtp).first();
+  await otpInput.waitFor({
+    state: "visible",
+    timeout: env.stepTransitionTimeout,
+  });
+  await otpInput.pressSequentially(env.otpCode, { delay: 100 });
+  screenshots.push(await screenshot(page, "login-02-otp"));
+
+  try {
+    await page.waitForURL(env.authSuccessUrl + "**", { timeout: 8_000 });
+  } catch {
+    const submitBtn = page.locator(env.selectorContinue).first();
+    await submitBtn.click();
+    await page.waitForURL(env.authSuccessUrl + "**", {
+      timeout: env.navigationTimeout,
+    });
+  }
+
+  await page.context().storageState({ path: env.authStatePath });
+  screenshots.push(await screenshot(page, "login-03-success"));
+}
+
+async function runSignup(page, screenshots) {
+  const generatedEmail = `${env.automateEmailPrefix}${Date.now()}+${env.automateEmailTag}@${env.automateEmailDomain}`;
+  console.log(`  Generated signup email: ${generatedEmail}`);
+
+  await page.goto(env.signupUrl, { waitUntil: "domcontentloaded" });
+
+  const firstNameInput = page.locator(env.selectorFirstName);
+  await firstNameInput.waitFor({
+    state: "visible",
+    timeout: env.stepTransitionTimeout,
+  });
+  await firstNameInput.fill(env.signupFirstName);
+
+  const lastNameInput = page.locator(env.selectorLastName);
+  await lastNameInput.waitFor({
+    state: "visible",
+    timeout: env.stepTransitionTimeout,
+  });
+  await lastNameInput.fill(env.signupLastName);
+
+  const emailInput = page.locator(env.selectorEmailAddress);
+  await emailInput.waitFor({
+    state: "visible",
+    timeout: env.stepTransitionTimeout,
+  });
+  await emailInput.fill(generatedEmail);
+  screenshots.push(await screenshot(page, "login-01-email"));
+
+  const continueBtn = page.locator(env.selectorContinue).first();
+  await continueBtn.click();
+
+  await page.waitForURL("**/sign-up/verify**", {
     timeout: env.stepTransitionTimeout,
   });
 
@@ -448,7 +503,7 @@ async function runBookAppointment(page, screenshots) {
 // ── Screenshot label mapping ─────────────────────────────────────────────────
 
 const SCREENSHOT_LABELS = {
-  "login-01-email": "Enter email address",
+  "login-01-email": CI ? "Signup form filled" : "Enter email address",
   "login-02-otp": "OTP verification code entered",
   "login-03-success": "Login successful — dashboard loaded",
   "onboard-00-skipped": "Onboarding already completed",
@@ -991,15 +1046,6 @@ async function runDashboard() {
       error: null,
       duration: "0s",
     };
-
-    // Skip tests that can't run in CI
-    if (CI && test.skipInCI) {
-      result.status = "skipped";
-      result.error = "Skipped in CI — AskSam chat backend rejects sessions from GitHub Actions.";
-      console.log("  SKIPPED (not supported in CI)");
-      results.push(result);
-      continue;
-    }
 
     const start = Date.now();
     let context;

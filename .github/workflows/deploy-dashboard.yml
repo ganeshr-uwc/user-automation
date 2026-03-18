@@ -34,7 +34,7 @@ jobs:
 
       - name: Create .env from secrets
         run: |
-          cat <<EOF > .env
+          cat <<DELIM > .env
           HEADLESS=true
           TARGET_URL=${{ secrets.TARGET_URL }}
           PROTECTED_URL=${{ secrets.PROTECTED_URL }}
@@ -43,7 +43,14 @@ jobs:
           AUTH_SUCCESS_URL=${{ secrets.AUTH_SUCCESS_URL }}
           CHAT_URL=${{ secrets.CHAT_URL }}
           SIGNUP_URL=${{ secrets.SIGNUP_URL }}
-          EOF
+          SIGNUP_FIRST_NAME=Test
+          SIGNUP_LAST_NAME=Automation
+          ONBOARD_FIRST_NAME=Test
+          ONBOARD_LAST_NAME=CIUser
+          ONBOARD_GENDER=Male
+          ONBOARD_DOB=2000-01-15
+          ONBOARD_REFERRAL_CODE=DEMO1024
+          DELIM
 
       - name: Run dashboard tests
         run: npm run dashboard

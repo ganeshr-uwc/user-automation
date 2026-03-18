@@ -2,6 +2,7 @@ const env = require("../config/env");
 const { getBrowser, closeBrowser } = require("../utils/browser");
 const { onboard } = require("./onboard");
 const { chat } = require("./chat");
+const { bookAppointment } = require("./book-appointment");
 
 function generateSignupEmail() {
   const timestamp = Date.now();
@@ -163,6 +164,7 @@ if (require.main === module) {
   automate()
     .then(() => onboard())
     .then(() => chat())
+    .then(() => bookAppointment())
     .catch((error) => {
       console.error(error.message);
       process.exit(1);

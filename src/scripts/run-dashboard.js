@@ -27,6 +27,10 @@ function elapsed(start) {
 
 // ── Test definitions ─────────────────────────────────────────────────────────
 
+// Tests that depend on the chat backend are skipped in CI because
+// the AskSam server rejects WebSocket sessions from GitHub Actions IPs.
+const CI = process.env.CI === "true";
+
 const tests = [
   {
     id: "login",
@@ -42,11 +46,13 @@ const tests = [
     id: "chat",
     name: "Chat Reply Verification",
     run: runChat,
+    skipInCI: true,
   },
   {
     id: "book-appointment",
     name: "Book Appointment",
     run: runBookAppointment,
+    skipInCI: true,
   },
 ];
 
@@ -985,6 +991,15 @@ async function runDashboard() {
       error: null,
       duration: "0s",
     };
+
+    // Skip tests that can't run in CI
+    if (CI && test.skipInCI) {
+      result.status = "skipped";
+      result.error = "Skipped in CI — AskSam chat backend rejects sessions from GitHub Actions.";
+      console.log("  SKIPPED (not supported in CI)");
+      results.push(result);
+      continue;
+    }
 
     const start = Date.now();
     let context;

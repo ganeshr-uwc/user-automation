@@ -11,7 +11,8 @@
     "automate": "node src/scripts/automate.js",
     "onboard": "node src/scripts/onboard.js",
     "chat": "node src/scripts/chat.js",
-    "book-appointment": "node src/scripts/book-appointment.js"
+    "book-appointment": "node src/scripts/book-appointment.js",
+    "dashboard": "node src/scripts/run-dashboard.js"
   },
   "keywords": ["automation", "playwright", "browser"],
   "author": "",

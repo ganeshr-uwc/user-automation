@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>AskSam | Automation Test Report</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+/* ── Theme variables ────────────────────── */
+:root {
+  --sidebar-w: 272px;
+  --header-h: 60px;
+  --bg: #f4f6f9;
+  --card: #ffffff;
+  --card-hover: #fafbfc;
+  --border: #e5e7eb;
+  --border-subtle: #f0f0f3;
+  --text: #111827;
+  --text-2: #4b5563;
+  --text-3: #9ca3af;
+  --accent: #4f46e5;
+  --accent-soft: #eef2ff;
+  --green: #16a34a;
+  --green-soft: #f0fdf4;
+  --red: #dc2626;
+  --red-soft: #fef2f2;
+  --amber: #d97706;
+  --amber-soft: #fffbeb;
+  --radius: 14px;
+  --radius-sm: 8px;
+  --shadow: 0 1px 2px rgba(0,0,0,.04);
+  --shadow-md: 0 4px 12px rgba(0,0,0,.06);
+  --shadow-lg: 0 12px 24px rgba(0,0,0,.08);
+  --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  --mono: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+  --donut-track: #e5e7eb;
+  --donut-text: #111827;
+  --donut-sub: #9ca3af;
+  --transition: .2s cubic-bezier(.4,0,.2,1);
+}
+[data-theme="dark"] {
+  --bg: #0f1117;
+  --card: #1a1d27;
+  --card-hover: #21242f;
+  --border: #2a2d3a;
+  --border-subtle: #22252f;
+  --text: #f1f3f5;
+  --text-2: #a1a7b4;
+  --text-3: #5c6370;
+  --accent: #818cf8;
+  --accent-soft: rgba(129,140,248,.12);
+  --green: #4ade80;
+  --green-soft: rgba(74,222,128,.1);
+  --red: #f87171;
+  --red-soft: rgba(248,113,113,.1);
+  --amber: #fbbf24;
+  --amber-soft: rgba(251,191,36,.1);
+  --shadow: 0 1px 2px rgba(0,0,0,.2);
+  --shadow-md: 0 4px 12px rgba(0,0,0,.3);
+  --shadow-lg: 0 12px 24px rgba(0,0,0,.4);
+  --donut-track: #2a2d3a;
+  --donut-text: #f1f3f5;
+  --donut-sub: #5c6370;
+}
+
+/* ── Reset ──────────────────────────────── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:1.5;transition:background var(--transition),color var(--transition)}
+a{text-decoration:none;color:inherit}
+
+/* ── Header ─────────────────────────────── */
+.hdr{position:fixed;top:0;left:0;right:0;z-index:100;height:var(--header-h);background:var(--card);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 28px;transition:background var(--transition),border var(--transition)}
+.hdr-brand{display:flex;align-items:center;gap:12px}
+.hdr-logo{width:34px;height:34px;background:linear-gradient(135deg,#6366f1,#8b5cf6);border-radius:10px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:14px;letter-spacing:-.5px}
+.hdr-title{font-size:16px;font-weight:700}
+.hdr-sub{font-size:11px;color:var(--text-3);letter-spacing:.2px}
+.hdr-right{margin-left:auto;display:flex;align-items:center;gap:16px}
+.hdr-meta{text-align:right}
+.hdr-meta-l{font-size:10px;color:var(--text-3);text-transform:uppercase;letter-spacing:.6px}
+.hdr-meta-v{font-size:13px;font-weight:600}
+.hdr-badge{padding:5px 14px;border-radius:20px;font-size:12px;font-weight:700;color:#fff;background:var(--green)}
+
+/* ── Theme toggle ───────────────────────── */
+.theme-toggle{width:36px;height:36px;border:1px solid var(--border);background:var(--card);border-radius:10px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all var(--transition);color:var(--text-2);flex-shrink:0}
+.theme-toggle:hover{background:var(--card-hover);border-color:var(--accent);color:var(--accent)}
+.theme-toggle svg{width:18px;height:18px}
+.icon-sun,.icon-moon{transition:opacity .15s}
+[data-theme="dark"] .icon-sun{display:none}
+[data-theme="light"] .icon-moon,[data-theme=""] .icon-moon{display:none}
+
+/* ── Sidebar ────────────────────────────── */
+.side{position:fixed;top:var(--header-h);left:0;bottom:0;width:var(--sidebar-w);background:var(--card);border-right:1px solid var(--border);overflow-y:auto;padding:20px 0;z-index:50;transition:background var(--transition),border var(--transition)}
+.side-summary{margin:0 14px 20px;padding:20px 16px;background:var(--bg);border-radius:var(--radius);border:1px solid var(--border);transition:background var(--transition),border var(--transition)}
+.donut-wrap{display:flex;justify-content:center;margin-bottom:14px}
+.stats-row{display:flex;justify-content:space-around}
+.stat{text-align:center}
+.stat-n{font-size:18px;font-weight:700}
+.stat-l{font-size:10px;color:var(--text-3);text-transform:uppercase;letter-spacing:.5px}
+.stat--p .stat-n{color:var(--green)}
+.stat--f .stat-n{color:var(--red)}
+.stat--s .stat-n{color:var(--amber)}
+.side-title{font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--text-3);padding:0 20px;margin-bottom:6px;font-weight:700}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 20px;font-size:13px;font-weight:500;color:var(--text-2);cursor:pointer;border-left:3px solid transparent;transition:all .12s}
+.nav-item:hover{background:var(--accent-soft);color:var(--accent)}
+.nav-item.active{background:var(--accent-soft);color:var(--accent);border-left-color:var(--accent)}
+.nav-icon{display:flex;align-items:center;flex-shrink:0}
+.nav-icon svg{width:18px;height:18px}
+.nav-label{flex:1}
+.nav-badge{font-size:9px;font-weight:700;padding:2px 7px;border-radius:8px;letter-spacing:.4px}
+.nav-badge--passed{background:var(--green-soft);color:var(--green)}
+.nav-badge--failed{background:var(--red-soft);color:var(--red)}
+.nav-badge--skipped{background:var(--amber-soft);color:var(--amber)}
+
+/* ── Main ───────────────────────────────── */
+.main{margin-left:var(--sidebar-w);margin-top:var(--header-h);padding:28px;min-height:calc(100vh - var(--header-h))}
+
+/* ── Timeline ───────────────────────────── */
+.timeline{display:flex;align-items:center;justify-content:center;padding:16px 24px;background:var(--card);border-radius:var(--radius);border:1px solid var(--border);margin-bottom:24px;flex-wrap:wrap;gap:4px;transition:background var(--transition),border var(--transition)}
+.tl-step{display:flex;align-items:center;gap:8px;padding:4px 0}
+.tl-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.tl--passed .tl-dot{background:var(--green);box-shadow:0 0 0 3px var(--green-soft)}
+.tl--failed .tl-dot{background:var(--red);box-shadow:0 0 0 3px var(--red-soft)}
+.tl--skipped .tl-dot{background:var(--amber);box-shadow:0 0 0 3px var(--amber-soft)}
+.tl-name{font-size:12px;font-weight:600;color:var(--text)}
+.tl-dur{font-size:11px;color:var(--text-3);font-weight:500}
+.tl-line{width:32px;height:1.5px;background:var(--border);flex-shrink:0}
+
+/* ── Test panel ─────────────────────────── */
+.test-panel{display:none;animation:fadeIn .25s ease}
+.test-panel.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+.panel-header{background:var(--card);border-radius:var(--radius);border:1px solid var(--border);padding:24px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:flex-start;gap:20px;flex-wrap:wrap;transition:background var(--transition),border var(--transition)}
+.panel-header-left{display:flex;gap:14px;align-items:flex-start;flex:1;min-width:280px}
+.panel-icon{flex-shrink:0}
+.panel-icon svg{width:26px;height:26px}
+.panel-info h2{font-size:20px;font-weight:700;margin-bottom:2px}
+.panel-info p{font-size:13px;color:var(--text-2);line-height:1.55}
+.panel-stats{display:flex;gap:20px;flex-shrink:0}
+.panel-stat{text-align:center}
+.panel-stat-label{display:block;font-size:10px;color:var(--text-3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px;font-weight:600}
+.panel-stat-value{font-size:15px;font-weight:700}
+.pill{display:inline-block;padding:3px 12px;border-radius:16px;font-size:11px;font-weight:700;letter-spacing:.4px}
+.pill--passed{background:var(--green-soft);color:var(--green)}
+.pill--failed{background:var(--red-soft);color:var(--red)}
+.pill--skipped{background:var(--amber-soft);color:var(--amber)}
+
+/* ── Section (collapsible) ──────────────── */
+.section{background:var(--card);border-radius:var(--radius);border:1px solid var(--border);margin-bottom:16px;overflow:hidden;transition:background var(--transition),border var(--transition)}
+.section-hd{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;cursor:pointer;user-select:none;transition:background .12s}
+.section-hd:hover{background:var(--card-hover)}
+.section-hd h3{font-size:14px;font-weight:600;display:flex;align-items:center;gap:8px}
+.section-hd h3 svg{color:var(--text-3)}
+.badge{background:var(--accent-soft);color:var(--accent);font-size:11px;padding:1px 8px;border-radius:8px;font-weight:700}
+.chev{color:var(--text-3);transition:transform .2s}
+.section-bd{padding:4px 20px 20px}
+.section-bd.closed{display:none}
+
+/* ── Screenshots ────────────────────────── */
+.ss-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
+.ss-card{border:1px solid var(--border);border-radius:var(--radius-sm);overflow:hidden;cursor:pointer;transition:all var(--transition);background:var(--card)}
+.ss-card:hover{box-shadow:var(--shadow-lg);transform:translateY(-2px);border-color:var(--accent)}
+.ss-img-wrap{position:relative;background:var(--bg)}
+.ss-img-wrap img{width:100%;display:block;height:180px;object-fit:cover;object-position:top}
+.ss-overlay{position:absolute;inset:0;background:rgba(0,0,0,.35);display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .15s}
+.ss-card:hover .ss-overlay{opacity:1}
+.ss-info{padding:10px 12px;display:flex;align-items:center;gap:8px}
+.ss-step{flex-shrink:0;background:var(--accent-soft);color:var(--accent);font-size:9px;font-weight:700;padding:2px 7px;border-radius:5px;text-transform:uppercase;letter-spacing:.3px}
+.ss-label{font-size:12px;color:var(--text-2);line-height:1.3}
+
+/* ── Video ──────────────────────────────── */
+.video-wrap{border-radius:var(--radius-sm);overflow:hidden;border:1px solid var(--border);background:#000}
+.video-wrap video{width:100%;display:block}
+
+/* ── Error ──────────────────────────────── */
+.error-block{background:var(--red-soft);border:1px solid color-mix(in srgb,var(--red) 20%,transparent);border-radius:var(--radius);margin-bottom:16px;overflow:hidden}
+.error-title{display:flex;align-items:center;gap:8px;padding:12px 18px;font-size:13px;font-weight:600;color:var(--red);border-bottom:1px solid color-mix(in srgb,var(--red) 15%,transparent)}
+.error-body{padding:14px 18px;font-size:12px;color:var(--red);font-family:var(--mono);white-space:pre-wrap;line-height:1.6;margin:0;opacity:.85}
+
+/* ── Empty state ────────────────────────── */
+.empty-state{text-align:center;padding:36px 20px;color:var(--text-3);font-size:13px}
+
+/* ── Lightbox ───────────────────────────── */
+.lb{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.88);display:none;align-items:center;justify-content:center;padding:40px;cursor:zoom-out;backdrop-filter:blur(8px)}
+.lb.open{display:flex}
+.lb img{max-width:100%;max-height:100%;object-fit:contain;border-radius:var(--radius-sm);box-shadow:0 20px 60px rgba(0,0,0,.6)}
+.lb-caption{position:absolute;bottom:28px;left:50%;transform:translateX(-50%);color:#fff;font-size:13px;background:rgba(0,0,0,.5);padding:7px 20px;border-radius:16px;white-space:nowrap;font-weight:500;backdrop-filter:blur(4px)}
+.lb-close{position:absolute;top:20px;right:24px;width:38px;height:38px;border:none;background:rgba(255,255,255,.1);color:#fff;border-radius:50%;cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;transition:background .12s;backdrop-filter:blur(4px)}
+.lb-close:hover{background:rgba(255,255,255,.25)}
+.lb-nav{position:absolute;top:50%;transform:translateY(-50%);width:42px;height:42px;border:none;background:rgba(255,255,255,.1);color:#fff;border-radius:50%;cursor:pointer;font-size:20px;display:flex;align-items:center;justify-content:center;transition:background .12s;backdrop-filter:blur(4px)}
+.lb-nav:hover{background:rgba(255,255,255,.25)}
+.lb-prev{left:20px}
+.lb-next{right:20px}
+.lb-counter{position:absolute;top:24px;left:50%;transform:translateX(-50%);color:rgba(255,255,255,.6);font-size:12px;font-weight:500}
+
+/* ── Footer ─────────────────────────────── */
+.footer{text-align:center;padding:20px;font-size:11px;color:var(--text-3);margin-top:32px;letter-spacing:.2px}
+
+/* ── Responsive ─────────────────────────── */
+@media(max-width:900px){
+  .side{display:none}
+  .main{margin-left:0}
+  .panel-header{flex-direction:column}
+  .ss-grid{grid-template-columns:1fr}
+  .hdr-meta{display:none}
+}
+</style>
+</head>
+<body data-theme="light">
+
+<header class="hdr">
+  <div class="hdr-brand">
+    <div class="hdr-logo">AS</div>
+    <div>
+      <div class="hdr-title">AskSam Automation</div>
+      <div class="hdr-sub">Test Execution Report</div>
+    </div>
+  </div>
+  <div class="hdr-right">
+    <div class="hdr-meta"><div class="hdr-meta-l">Duration</div><div class="hdr-meta-v">57.2s</div></div>
+    <div class="hdr-meta"><div class="hdr-meta-l">Environment</div><div class="hdr-meta-v">Production</div></div>
+    <div class="hdr-badge">All Passed</div>
+    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme">
+      <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+      <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+    </button>
+  </div>
+</header>
+
+<aside class="side">
+  <div class="side-summary">
+    <div class="donut-wrap">
+      <svg width="110" height="110" viewBox="0 0 110 110">
+        <circle cx="55" cy="55" r="50" fill="none" stroke="var(--donut-track)" stroke-width="10"/>
+        <circle cx="55" cy="55" r="50" fill="none" stroke="#22c55e" stroke-width="10" stroke-dasharray="314.1592653589793 0" stroke-dashoffset="-0" stroke-linecap="round" transform="rotate(-90 55 55)"/>
+        <text x="55" y="51" text-anchor="middle" font-size="26" font-weight="800" fill="var(--donut-text)">100%</text>
+        <text x="55" y="69" text-anchor="middle" font-size="10" fill="var(--donut-sub)" font-weight="500">PASS RATE</text>
+      </svg>
+    </div>
+    <div class="stats-row">
+      <div class="stat stat--p"><div class="stat-n">4</div><div class="stat-l">Passed</div></div>
+      <div class="stat stat--f"><div class="stat-n">0</div><div class="stat-l">Failed</div></div>
+      <div class="stat stat--s"><div class="stat-n">0</div><div class="stat-l">Skipped</div></div>
+    </div>
+  </div>
+  <div class="side-title">Test Cases</div>
+  
+      <a class="nav-item active" onclick="showTest('test-login',this)">
+        <span class="nav-icon"><svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/></svg></span>
+        <span class="nav-label">Login (OTP)</span>
+        <span class="nav-badge nav-badge--passed">PASS</span>
+      </a>
+      <a class="nav-item" onclick="showTest('test-onboard',this)">
+        <span class="nav-icon"><svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg></span>
+        <span class="nav-label">Onboarding Wizard</span>
+        <span class="nav-badge nav-badge--passed">PASS</span>
+      </a>
+      <a class="nav-item" onclick="showTest('test-chat',this)">
+        <span class="nav-icon"><svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg></span>
+        <span class="nav-label">Chat Reply Verification</span>
+        <span class="nav-badge nav-badge--passed">PASS</span>
+      </a>
+      <a class="nav-item" onclick="showTest('test-book-appointment',this)">
+        <span class="nav-icon"><svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg></span>
+        <span class="nav-label">Book Appointment</span>
+        <span class="nav-badge nav-badge--passed">PASS</span>
+      </a>
+</aside>
+
+<main class="main">
+  <div class="timeline"><div class="tl-step tl--passed"><div class="tl-dot"></div><span class="tl-name">Login (OTP)</span><span class="tl-dur">7.7s</span></div><div class="tl-line"></div><div class="tl-step tl--passed"><div class="tl-dot"></div><span class="tl-name">Onboarding Wizard</span><span class="tl-dur">9.3s</span></div><div class="tl-line"></div><div class="tl-step tl--passed"><div class="tl-dot"></div><span class="tl-name">Chat Reply Verification</span><span class="tl-dur">30.4s</span></div><div class="tl-line"></div><div class="tl-step tl--passed"><div class="tl-dot"></div><span class="tl-name">Book Appointment</span><span class="tl-dur">9.8s</span></div></div>
+  
+      <div class="test-panel active" id="test-login">
+        <div class="panel-header">
+          <div class="panel-header-left">
+            <div class="panel-icon" style="color:var(--green)"><svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/></svg></div>
+            <div class="panel-info">
+              <h2>Login (OTP)</h2>
+              <p>Authenticates via Clerk OTP flow: enters email, submits OTP code, and saves the session for subsequent tests.</p>
+            </div>
+          </div>
+          <div class="panel-stats">
+            <div class="panel-stat"><span class="panel-stat-label">Status</span><span class="pill pill--passed">PASSED</span></div>
+            <div class="panel-stat"><span class="panel-stat-label">Duration</span><span class="panel-stat-value">7.7s</span></div>
+            <div class="panel-stat"><span class="panel-stat-label">Captures</span><span class="panel-stat-value">3</span></div>
+          </div>
+        </div>
+        
+        <div class="section">
+          <div class="section-hd" onclick="toggleSection(this)">
+            <h3><svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>Screenshots<span class="badge">3</span></h3>
+            <svg class="chev" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+          </div>
+          <div class="section-bd open">
+            <div class="ss-grid">
+            <div class="ss-card" onclick="openLightbox('screenshots/login-01-email.png','Enter email address')">
+              <div class="ss-img-wrap">
+                <img src="screenshots/login-01-email.png" alt="Enter email address" loading="lazy"/>
+                <div class="ss-overlay"><svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="#fff" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7"/></svg></div>
+              </div>
+              <div class="ss-info">
+                <span class="ss-step">Step 1</span>
+                <span class="ss-label">Enter email address</span>
+              </div>
+            </div>
+            <div class="ss-card" onclick="openLightbox('screenshots/login-02-otp.png','OTP verification code entered')">
+              <div class="ss-img-wrap">
+                <img src="screenshots/login-02-otp.png" alt="OTP verification code entered" loading="lazy"/>
+                <div class="ss-overlay"><svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="#fff" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7"/></svg></div>
+              </div>
+              <div class="ss-info">
+                <span class="ss-step">Step 2</span>
+                <span class="ss-label">OTP verification code entered</span>
+              </div>
+            </div>
+            <div class="ss-card" onclick="openLightbox('screenshots/login-03-success.png','Login successful — dashboard loaded')">
+              <div class="ss-img-wrap">
+                <img src="screenshots/login-03-success.png" alt="Login successful — dashboard loaded" loading="lazy"/>
+                <div class="ss-overlay"><svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="#fff" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7"/></svg></div>
+              </div>
+              <div class="ss-info">
+                <span class="ss-step">Step 3</span>
+                <span class="ss-label">Login successful — dashboard loaded</span>
+              </div>
+            </div></div>
+          </div>
+        </div>
+        <div class="section">
+          <div class="section-hd" onclick="toggleSection(this)">
+            <h3><svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>Video Recording</h3>
+            <svg class="chev" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+          </div>
+          <div class="section-bd open"><div class="video-wrap"><video controls preload="metadata"><source src="videos/login.webm" type="video/webm"></video></div></div>
+        </div>
+      </div>
+      <div class="test-panel" id="test-onboard">
+        <div class="panel-header">
+          <div class="panel-header-left">
+            <div class="panel-icon" style="color:var(--green)"><svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg></div>
+            <div class="panel-info">
+              <h2>Onboarding Wizard</h2>
+              <p>Completes the 8-step onboarding wizard: welcome popup, terms & conditions, profile details, gender, DOB, referral code, and source selection.</p>
+            </div>
+          </div>
+          <div class="panel-stats">
+            <div class="panel-stat"><span class="panel-stat-label">Status</span><span class="pill pill--passed">PASSED</span></div>
+            <div class="panel-stat"><span class="panel-stat-label">Duration</span><span class="panel-stat-value">9.3s</span></div>
+            <div class="panel-stat"><span class="panel-stat-label">Captures</span><span class="panel-stat-value">1</span></div>
+          </div>
+        </div>
+        
+        <div class="section">
+          <div class="section-hd" onclick="toggleSection(this)">
+            <h3><svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>Screenshots<span class="badge">1</span></h3>
+            <svg class="chev" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+          </div>
+          <div class="section-bd open">
+            <div class="ss-grid">
+            <div class="ss-card" onclick="openLightbox('screenshots/onboard-00-skipped.png','Onboarding already completed')">
+              <div class="ss-img-wrap">
+                <img src="screenshots/onboard-00-skipped.png" alt="Onboarding already completed" loading="lazy"/>
+                <div class="ss-overlay"><svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="#fff" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7"/></svg></div>
+              </div>
+              <div class="ss-info">
+                <span class="ss-step">Step 1</span>
+                <span class="ss-label">Onboarding already completed</span>
+              </div>
+            </div></div>
+          </div>
+        </div>
+        <div class="section">
+          <div class="section-hd" onclick="toggleSection(this)">
+            <h3><svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>Video Recording</h3>
+            <svg class="chev" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+          </div>
+          <div class="section-bd open"><div class="video-wrap"><video controls preload="metadata"><source src="videos/onboard.webm" type="video/webm"></video></div></div>
+        </div>
+      </div>
+      <div class="test-panel" id="test-chat">
+        <div class="panel-header">
+          <div class="panel-header-left">
+            <div class="panel-icon" style="color:var(--green)"><svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg></div>
+            <div class="panel-info">
+              <h2>Chat Reply Verification</h2>
+              <p>Sends mental health questions to the AskSam chatbot and verifies that bot replies are received and fully streamed.</p>
+            </div>
+          </div>
+          <div class="panel-stats">
+            <div class="panel-stat"><span class="panel-stat-label">Status</span><span class="pill pill--passed">PASSED</span></div>
+            <div class="panel-stat"><span class="panel-stat-label">Duration</span><span class="panel-stat-value">30.4s</span></div>
+            <div class="panel-stat"><span class="panel-stat-label">Captures</span><span class="panel-stat-value">3</span></div>
+          </div>
+        </div>
+        
+        <div class="section">
+          <div class="section-hd" onclick="toggleSection(this)">
+            <h3><svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>Screenshots<span class="badge">3</span></h3>
+            <svg class="chev" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+          </div>
+          <div class="section-bd open">
+            <div class="ss-grid">
+            <div class="ss-card" onclick="openLightbox('screenshots/chat-01-ready.png','Chat page ready')">
+              <div class="ss-img-wrap">
+                <img src="screenshots/chat-01-ready.png" alt="Chat page ready" loading="lazy"/>
+                <div class="ss-overlay"><svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="#fff" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7"/></svg></div>
+              </div>
+              <div class="ss-info">
+                <span class="ss-step">Step 1</span>
+                <span class="ss-label">Chat page ready</span>
+              </div>
+            </div>
+            <div class="ss-card" onclick="openLightbox('screenshots/chat-02-reply-1.png','Bot reply received (Message 1)')">
+              <div class="ss-img-wrap">
+                <img src="screenshots/chat-02-reply-1.png" alt="Bot reply received (Message 1)" loading="lazy"/>
+                <div class="ss-overlay"><svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="#fff" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7"/></svg></div>
+              </div>
+              <div class="ss-info">
+                <span class="ss-step">Step 2</span>
+                <span class="ss-label">Bot reply received (Message 1)</span>
+              </div>
+            </div>
+            <div class="ss-card" onclick="openLightbox('screenshots/chat-02-reply-2.png','Bot reply received (Message 2)')">
+              <div class="ss-img-wrap">
+                <img src="screenshots/chat-02-reply-2.png" alt="Bot reply received (Message 2)" loading="lazy"/>
+                <div class="ss-overlay"><svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="#fff" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7"/></svg></div>
+              </div>
+              <div class="ss-info">
+                <span class="ss-step">Step 3</span>
+                <span class="ss-label">Bot reply received (Message 2)</span>
+              </div>
+            </div></div>
+          </div>
+        </div>
+        <div class="section">
+          <div class="section-hd" onclick="toggleSection(this)">
+            <h3><svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>Video Recording</h3>
+            <svg class="chev" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+          </div>
+          <div class="section-bd open"><div class="video-wrap"><video controls preload="metadata"><source src="videos/chat.webm" type="video/webm"></video></div></div>
+        </div>
+      </div>
+      <div class="test-panel" id="test-book-appointment">
+        <div class="panel-header">
+          <div class="panel-header-left">
+            <div class="panel-icon" style="color:var(--green)"><svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg></div>
+            <div class="panel-info">
+              <h2>Book Appointment</h2>
+              <p>Navigates the sidebar menu to My Appointments, opens the booking portal, and searches for a professional by name.</p>
+            </div>
+          </div>
+          <div class="panel-stats">
+            <div class="panel-stat"><span class="panel-stat-label">Status</span><span class="pill pill--passed">PASSED</span></div>
+            <div class="panel-stat"><span class="panel-stat-label">Duration</span><span class="panel-stat-value">9.8s</span></div>
+            <div class="panel-stat"><span class="panel-stat-label">Captures</span><span class="panel-stat-value">5</span></div>
+          </div>
+        </div>
+        
+        <div class="section">
+          <div class="section-hd" onclick="toggleSection(this)">
+            <h3><svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>Screenshots<span class="badge">5</span></h3>
+            <svg class="chev" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+          </div>
+          <div class="section-bd open">
+            <div class="ss-grid">
+            <div class="ss-card" onclick="openLightbox('screenshots/book-01-home.png','Application home page')">
+              <div class="ss-img-wrap">
+                <img src="screenshots/book-01-home.png" alt="Application home page" loading="lazy"/>
+                <div class="ss-overlay"><svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="#fff" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7"/></svg></div>
+              </div>
+              <div class="ss-info">
+                <span class="ss-step">Step 1</span>
+                <span class="ss-label">Application home page</span>
+              </div>
+            </div>
+            <div class="ss-card" onclick="openLightbox('screenshots/book-02-sidebar.png','Sidebar menu opened')">
+              <div class="ss-img-wrap">
+                <img src="screenshots/book-02-sidebar.png" alt="Sidebar menu opened" loading="lazy"/>
+                <div class="ss-overlay"><svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="#fff" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7"/></svg></div>
+              </div>
+              <div class="ss-info">
+                <span class="ss-step">Step 2</span>
+                <span class="ss-label">Sidebar menu opened</span>
+              </div>
+            </div>
+            <div class="ss-card" onclick="openLightbox('screenshots/book-03-appointments.png','My Appointments page')">
+              <div class="ss-img-wrap">
+                <img src="screenshots/book-03-appointments.png" alt="My Appointments page" loading="lazy"/>
+                <div class="ss-overlay"><svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="#fff" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7"/></svg></div>
+              </div>
+              <div class="ss-info">
+                <span class="ss-step">Step 3</span>
+                <span class="ss-label">My Appointments page</span>
+              </div>
+            </div>
+            <div class="ss-card" onclick="openLightbox('screenshots/book-04-booking-page.png','Booking portal loaded')">
+              <div class="ss-img-wrap">
+                <img src="screenshots/book-04-booking-page.png" alt="Booking portal loaded" loading="lazy"/>
+                <div class="ss-overlay"><svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="#fff" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7"/></svg></div>
+              </div>
+              <div class="ss-info">
+                <span class="ss-step">Step 4</span>
+                <span class="ss-label">Booking portal loaded</span>
+              </div>
+            </div>
+            <div class="ss-card" onclick="openLightbox('screenshots/book-05-search-results.png','Search results displayed')">
+              <div class="ss-img-wrap">
+                <img src="screenshots/book-05-search-results.png" alt="Search results displayed" loading="lazy"/>
+                <div class="ss-overlay"><svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="#fff" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7"/></svg></div>
+              </div>
+              <div class="ss-info">
+                <span class="ss-step">Step 5</span>
+                <span class="ss-label">Search results displayed</span>
+              </div>
+            </div></div>
+          </div>
+        </div>
+        <div class="section">
+          <div class="section-hd" onclick="toggleSection(this)">
+            <h3><svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>Video Recording</h3>
+            <svg class="chev" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+          </div>
+          <div class="section-bd open"><div class="video-wrap"><video controls preload="metadata"><source src="videos/book-appointment.webm" type="video/webm"></video></div></div>
+        </div>
+      </div>
+  <div class="footer">Generated on Wednesday, March 18, 2026 at 11:11 AM &middot; Playwright + Node.js &middot; AskSam QA Automation</div>
+</main>
+
+<div class="lb" id="lb" onclick="closeLb()">
+  <button class="lb-close" onclick="closeLb()">&times;</button>
+  <button class="lb-nav lb-prev" onclick="navLb(event,-1)">&#8249;</button>
+  <button class="lb-nav lb-next" onclick="navLb(event,1)">&#8250;</button>
+  <div class="lb-counter" id="lb-counter"></div>
+  <img id="lb-img" src="" alt=""/>
+  <div class="lb-caption" id="lb-caption"></div>
+</div>
+
+<script>
+/* ── Theme toggle ─────────────────────── */
+function toggleTheme(){
+  const html=document.documentElement;
+  const body=document.body;
+  const current=body.getAttribute('data-theme');
+  const next=current==='dark'?'light':'dark';
+  body.setAttribute('data-theme',next);
+  localStorage.setItem('asksam-theme',next);
+}
+(function(){
+  const saved=localStorage.getItem('asksam-theme');
+  if(saved)document.body.setAttribute('data-theme',saved);
+  else if(window.matchMedia('(prefers-color-scheme:dark)').matches)document.body.setAttribute('data-theme','dark');
+})();
+
+/* ── Navigation ───────────────────────── */
+function showTest(id,el){
+  document.querySelectorAll('.test-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  if(el)el.classList.add('active');
+}
+
+/* ── Collapsible sections ─────────────── */
+function toggleSection(hd){
+  const bd=hd.nextElementSibling;
+  const ch=hd.querySelector('.chev');
+  if(bd.classList.contains('open')){bd.classList.replace('open','closed');if(ch)ch.style.transform='rotate(0)'}
+  else{bd.classList.replace('closed','open');if(ch)ch.style.transform='rotate(180deg)'}
+}
+
+/* ── Lightbox with prev/next ──────────── */
+let lbImages=[], lbIdx=0;
+function collectImages(){
+  const active=document.querySelector('.test-panel.active');
+  if(!active)return[];
+  return Array.from(active.querySelectorAll('.ss-card')).map(c=>({
+    src:c.querySelector('img').src,
+    label:c.querySelector('.ss-label')?.textContent?.trim()||''
+  }));
+}
+function openLightbox(src,caption){
+  event.stopPropagation();
+  lbImages=collectImages();
+  lbIdx=lbImages.findIndex(i=>i.src.includes(src.replace('screenshots/',''))); if(lbIdx<0)lbIdx=0;
+  showLbSlide();
+  document.getElementById('lb').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function showLbSlide(){
+  const item=lbImages[lbIdx];
+  if(!item)return;
+  document.getElementById('lb-img').src=item.src;
+  document.getElementById('lb-caption').textContent=item.label;
+  document.getElementById('lb-counter').textContent=(lbIdx+1)+' / '+lbImages.length;
+}
+function closeLb(){document.getElementById('lb').classList.remove('open');document.body.style.overflow=''}
+function navLb(e,dir){e.stopPropagation();lbIdx=(lbIdx+dir+lbImages.length)%lbImages.length;showLbSlide()}
+document.addEventListener('keydown',e=>{
+  if(!document.getElementById('lb').classList.contains('open'))return;
+  if(e.key==='Escape')closeLb();
+  if(e.key==='ArrowLeft')navLb(e,-1);
+  if(e.key==='ArrowRight')navLb(e,1);
+});
+</script>
+</body>
+</html>

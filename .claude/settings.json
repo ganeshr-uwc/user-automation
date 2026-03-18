@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(HEADLESS=false npm run dashboard)",
+      "Bash(start \"\" \"C:/Users/Asus/Documents/UWC/user-automation/reports/dashboard.html\")"
+    ]
+  }
+}

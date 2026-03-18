@@ -1,5 +1,5 @@
 node_modules/
 auth.json
-screenshots/
+/screenshots/
 .env
 *.log

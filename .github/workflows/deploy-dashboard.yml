@@ -1,0 +1,60 @@
+name: Deploy Dashboard to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  test-and-deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Create .env from secrets
+        run: |
+          cat <<EOF > .env
+          HEADLESS=true
+          TARGET_URL=${{ secrets.TARGET_URL }}
+          PROTECTED_URL=${{ secrets.PROTECTED_URL }}
+          LOGIN_EMAIL=${{ secrets.LOGIN_EMAIL }}
+          OTP_CODE=${{ secrets.OTP_CODE }}
+          AUTH_SUCCESS_URL=${{ secrets.AUTH_SUCCESS_URL }}
+          CHAT_URL=${{ secrets.CHAT_URL }}
+          SIGNUP_URL=${{ secrets.SIGNUP_URL }}
+          EOF
+
+      - name: Run dashboard tests
+        run: npm run dashboard
+        timeout-minutes: 5
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: reports
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

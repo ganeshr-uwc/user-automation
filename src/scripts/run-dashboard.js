@@ -283,9 +283,10 @@ async function runChat(page, screenshots) {
   const CHAT_CONTAINER_SEL = 'main div[class*="overflow-y-scroll"]';
   const BOT_MESSAGE_SEL = `${CHAT_CONTAINER_SEL} > div[class*="justify-start"]`;
 
-  await page.goto(env.chatUrl, { waitUntil: "domcontentloaded" });
+  await page.goto(env.chatUrl, { waitUntil: "load" });
+  // Wait for SPA to hydrate
+  await page.waitForTimeout(5000);
 
-  // Wait longer in CI — page may take time to hydrate
   const chatInput = page.getByPlaceholder("Ask Sam");
   await chatInput.waitFor({
     state: "visible",
@@ -358,7 +359,8 @@ async function waitForStreamingDone(page, botSel) {
 }
 
 async function runBookAppointment(page, screenshots) {
-  await page.goto(env.protectedUrl, { waitUntil: "domcontentloaded" });
+  await page.goto(env.protectedUrl, { waitUntil: "load" });
+  await page.waitForTimeout(3000);
   screenshots.push(await screenshot(page, "book-01-home"));
 
   // Open sidebar
@@ -447,6 +449,10 @@ const SCREENSHOT_LABELS = {
   "book-03-appointments": "My Appointments page",
   "book-04-booking-page": "Booking portal loaded",
   "book-05-search-results": "Search results displayed",
+  "login-FAIL": "FAILURE — page state at error",
+  "onboard-FAIL": "FAILURE — page state at error",
+  "chat-FAIL": "FAILURE — page state at error",
+  "book-appointment-FAIL": "FAILURE — page state at error",
 };
 
 const TEST_DESCRIPTIONS = {
@@ -995,6 +1001,17 @@ async function runDashboard() {
       result.status = "failed";
       result.error = err.message;
       console.error(`  FAILED: ${err.message}`);
+      // Capture failure screenshot for debugging
+      try {
+        const pages = context?.pages() || [];
+        for (const p of pages) {
+          const url = p.url();
+          console.error(`  Page URL at failure: ${url}`);
+          result.screenshots.push(
+            await screenshot(p, `${test.id}-FAIL`)
+          );
+        }
+      } catch {}
     }
 
     result.duration = elapsed(start);

@@ -283,17 +283,16 @@ async function runChat(page, screenshots) {
   const CHAT_CONTAINER_SEL = 'main div[class*="overflow-y-scroll"]';
   const BOT_MESSAGE_SEL = `${CHAT_CONTAINER_SEL} > div[class*="justify-start"]`;
 
-  await page.goto(env.chatUrl, { waitUntil: "load" });
-  await page.waitForTimeout(5000);
+  // Try loading chat page — reload if "Retry Connection" appears
+  for (let attempt = 1; attempt <= 3; attempt++) {
+    await page.goto(env.chatUrl, { waitUntil: "load" });
+    await page.waitForTimeout(5000);
 
-  // Handle "Retry Connection" if session creation fails
-  for (let attempt = 0; attempt < 3; attempt++) {
     const retryBtn = page.getByRole("button", { name: /retry connection/i });
     try {
       await retryBtn.waitFor({ state: "visible", timeout: 5000 });
-      console.log(`  Retry Connection detected (attempt ${attempt + 1}) — clicking…`);
-      await retryBtn.click();
-      await page.waitForTimeout(5000);
+      console.log(`  Session error detected (attempt ${attempt}/3) — reloading page…`);
+      await page.waitForTimeout(3000);
     } catch {
       break; // no retry button — connection is fine
     }
@@ -374,17 +373,6 @@ async function runBookAppointment(page, screenshots) {
   await page.goto(env.protectedUrl, { waitUntil: "load" });
   await page.waitForTimeout(3000);
 
-  // Handle "Retry Connection" if it appears on the chat/home page
-  const retryBtn = page.getByRole("button", { name: /retry connection/i });
-  try {
-    await retryBtn.waitFor({ state: "visible", timeout: 5000 });
-    console.log("  Retry Connection detected — clicking…");
-    await retryBtn.click();
-    await page.waitForTimeout(5000);
-  } catch {
-    // no retry needed
-  }
-
   screenshots.push(await screenshot(page, "book-01-home"));
 
   // Open sidebar
@@ -399,7 +387,7 @@ async function runBookAppointment(page, screenshots) {
     timeout: env.stepTransitionTimeout,
   });
   await sidebarToggle.click();
-  await page.waitForTimeout(500);
+  await page.waitForTimeout(1000);
   screenshots.push(await screenshot(page, "book-02-sidebar"));
 
   // My Appointments
@@ -414,14 +402,15 @@ async function runBookAppointment(page, screenshots) {
     el.scrollIntoView({ block: "center", behavior: "instant" });
     el.click();
   });
-  // Wait longer for My Appointments page to load in CI
-  await page.waitForTimeout(3000);
+  // Wait for My Appointments page to load
+  await page.waitForTimeout(5000);
   screenshots.push(await screenshot(page, "book-03-appointments"));
 
-  // Book Appointment — opens new tab
+  // Book Appointment — try button, link, or use JS click
   const bookBtn = page
     .getByRole("button", { name: /book appointment/i })
     .or(page.getByRole("link", { name: /book appointment/i }))
+    .or(page.locator('a[href*="booking"]'))
     .or(page.getByText("Book Appointment", { exact: false }))
     .first();
   await bookBtn.waitFor({
